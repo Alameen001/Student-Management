@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,14 +6,12 @@ import 'package:student/model/db_model.dart';
 
 var _image;
 
-ValueNotifier<List <StudentModel>> studentListNotifier = ValueNotifier([]);
+ValueNotifier<List<StudentModel>> studentListNotifier = ValueNotifier([]);
 
 // ValueNotifier<List <StudentModel>> dataNotifier = ValueNotifier([]);
 
-Future <void> addStudent(StudentModel value) async{
-
- final studentDB = await Hive.openBox<StudentModel>('student_db');
-
+Future<void> addStudent(StudentModel value) async {
+  final studentDB = await Hive.openBox<StudentModel>('student_db');
 
   await studentDB.add(value);
 
@@ -24,8 +20,7 @@ Future <void> addStudent(StudentModel value) async{
   studentListNotifier.notifyListeners();
 }
 
-Future <void> getAllStudents() async{
-
+Future<void> getAllStudents() async {
   final studentDB = await Hive.openBox<StudentModel>('student_db');
 
   studentListNotifier.value.clear();
@@ -33,60 +28,47 @@ Future <void> getAllStudents() async{
   studentListNotifier.value.addAll(studentDB.values);
 
   studentListNotifier.notifyListeners();
-
-
 }
 
-Future<void> deleteStudent(int id) async{
+Future<void> deleteStudent(int id) async {
+  final studentDB = await Hive.openBox<StudentModel>('student_db');
 
-final studentDB = await Hive.openBox<StudentModel>('student_db');
+  final keys = studentDB.keys;
 
-final keys = studentDB.keys;
+  final key = keys.elementAt(id);
 
-final key = keys.elementAt(id);
+  await studentDB.delete(key);
 
-await studentDB.delete(key);
-
-getAllStudents();
-
+  getAllStudents();
 }
- Future<void> updateList(StudentModel value , index) async{
 
+Future<void> updateList(StudentModel value, index) async {
+  final studentDB = await Hive.openBox<StudentModel>('student_db');
 
-final studentDB = await Hive.openBox<StudentModel>('student_db');
+  final keys = studentDB.keys;
 
-final keys = studentDB.keys;
+  final key = keys.elementAt(index);
 
-final key = keys.elementAt(index);
+  print(key);
 
-print(key);
-
-await studentDB.put(key, value);
+  await studentDB.put(key, value);
 
 // studentListNotifier.value = value;
 
-   studentListNotifier.notifyListeners();
+  studentListNotifier.notifyListeners();
 
-   getAllStudents();
-
- }
-
-
-
-Future<String>imageSelect() async{
-
-  XFile? img = await ImagePicker().pickImage(source: ImageSource.gallery);
-
- return img!.path;
-
+  getAllStudents();
 }
 
+Future<String> imageSelect() async {
+  XFile? img = await ImagePicker().pickImage(source: ImageSource.gallery);
 
-Future<void> deleteall() async{
+  return img!.path;
+}
 
+Future<void> deleteall() async {
   final studentDB = await Hive.openBox<StudentModel>('student_db');
 
   studentDB.clear();
   studentListNotifier.value.clear();
 }
-
